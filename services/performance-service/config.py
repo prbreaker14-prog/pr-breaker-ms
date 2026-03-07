@@ -8,9 +8,13 @@ class Config:
     DEBUG = os.getenv("DEBUG", "false").lower() == "true"
     SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
 
+    # Prefer a service-specific URL, but also support the generic DATABASE_URL
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "WORKOUT_DATABASE_URL",
-        "postgresql+psycopg2://workout_user:workout_password@workout-db:5432/workout_db",
+        "PERFORMANCE_DATABASE_URL",
+        os.getenv(
+            "DATABASE_URL",
+            "postgresql+psycopg2://performance_user:performance_password@performance-db:5432/performance_db",
+        ),
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -18,14 +22,15 @@ class Config:
 
     IDENTITY_SERVICE_URL = os.getenv("IDENTITY_SERVICE_URL", "http://identity-service:5000")
     WORKOUT_SERVICE_URL = os.getenv("WORKOUT_SERVICE_URL", "http://workout-service:5000")
+    PERFORMANCE_SERVICE_URL = os.getenv("PERFORMANCE_SERVICE_URL", "http://performance-service:5000")
 
-    PORT = int(os.getenv("PORT", "5002"))
+    PORT = int(os.getenv("PORT", "5004"))
 
 
 class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "WORKOUT_TEST_DATABASE_URL",
+        "PERFORMANCE_TEST_DATABASE_URL",
         "sqlite:///:memory:",
     )
 
