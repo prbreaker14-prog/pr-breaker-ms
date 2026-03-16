@@ -16,36 +16,66 @@ from shared.auth.jwt_utils import (
 from app.services.email_service import send_email
 
 
-def register_user_service(email: str, username: str, password: str):
+def register_user_service(
+    user_email: str,
+    user_name: str,
+    user_password: str,
+    age: int | None = None,
+    gender: str | None = None,
+    height: float | None = None,
+    weight: float | None = None,
+):
     existing = User.query.filter(
-        (User.email == email) | (User.username == username)
+        (User.email == user_email) | (User.username == user_name)
     ).first()
     if existing:
         return False, "User with given email or username already exists"
 
-    hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    hashed = bcrypt.hashpw(user_password.encode("utf-8"), bcrypt.gensalt())
     user = User(
-        email=email,
-        username=username,
+        email=user_email,
+        username=user_name,
         password_hash=hashed.decode("utf-8"),
     )
-    profile = UserProfile(user=user)
+    profile = UserProfile(
+        user=user,
+        age=age,
+        gender=gender,
+        height=height,
+        weight=weight,
+    )
 
     db.session.add(user)
     db.session.add(profile)
     db.session.commit()
 
     return True, {
-        "id": user.id,
-        "email": user.email,
-        "username": user.username,
+        "userId": user.id,
+        "userEmail": user.email,
+        "userName": user.username,
+        "profile": {
+            "age": profile.age,
+            "gender": profile.gender,
+            "height": profile.height,
+            "weight": profile.weight,
+        },
     }
 
 
-def login_user_service(identifier: str, password: str):
-    user = User.query.filter(
-        (User.email == identifier) | (User.username == identifier)
-    ).first()
+def login_user_service(
+    user_email: str | None = None, user_name: str | None = None, password: str = ""
+):
+    # Accept either email or username for login
+    identifier_filter = []
+    if user_email:
+        identifier_filter.append(User.email == user_email)
+    if user_name:
+        identifier_filter.append(User.username == user_name)
+
+    if not identifier_filter:
+        return False, "Invalid credentials"
+
+    user = User.query.filter(*identifier_filter).first()
     if not user:
         return False, "Invalid credentials"
 
@@ -62,9 +92,9 @@ def login_user_service(identifier: str, password: str):
         "refresh_token": refresh_token,
         "token_type": "bearer",
         "user": {
-            "id": user.id,
-            "email": user.email,
-            "username": user.username,
+            "userId": user.id,
+            "userEmail": user.email,
+            "userName": user.username,
         },
     }
 

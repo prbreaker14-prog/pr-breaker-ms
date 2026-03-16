@@ -13,14 +13,46 @@ from shared.utils.response import success_response, error_response
 
 def register_user():
     payload = request.get_json(silent=True) or {}
-    email = payload.get("email")
-    username = payload.get("username")
-    password = payload.get("password")
 
-    if not email or not username or not password:
-        return error_response("email, username and password are required", 400)
+    # Required payload keys for the front-end contract
+    user_email = payload.get("userEmail") or payload.get("email")
+    user_name = payload.get("userName") or payload.get("username")
+    user_password = payload.get("userPassword") or payload.get("password")
+    age = payload.get("age")
+    gender = payload.get("gender")
+    height = payload.get("height")
+    weight = payload.get("weight")
 
-    ok, result_or_msg = register_user_service(email=email, username=username, password=password)
+    if not user_email or not user_name or not user_password:
+        return error_response(
+            "userEmail, userName and userPassword are required", 400
+        )
+
+    # Normalize numeric values (ignore invalid values)
+    try:
+        age = int(age) if age is not None else None
+    except (TypeError, ValueError):
+        age = None
+
+    try:
+        height = float(height) if height is not None else None
+    except (TypeError, ValueError):
+        height = None
+
+    try:
+        weight = float(weight) if weight is not None else None
+    except (TypeError, ValueError):
+        weight = None
+
+    ok, result_or_msg = register_user_service(
+        user_email=user_email,
+        user_name=user_name,
+        user_password=user_password,
+        age=age,
+        gender=gender,
+        height=height,
+        weight=weight,
+    )
     if not ok:
         return error_response(result_or_msg, 400)
 
@@ -29,13 +61,22 @@ def register_user():
 
 def login_user():
     payload = request.get_json(silent=True) or {}
-    email_or_username = payload.get("email") or payload.get("username")
-    password = payload.get("password")
 
-    if not email_or_username or not password:
-        return error_response("email/username and password are required", 400)
+    # Accept either the new contract keys, or fall back to legacy keys
+    user_email = payload.get("userEmail") or payload.get("email")
+    user_name = payload.get("userName") or payload.get("username")
+    user_password = payload.get("userPassword") or payload.get("password")
 
-    ok, result_or_msg = login_user_service(identifier=email_or_username, password=password)
+    if not (user_email or user_name) or not user_password:
+        return error_response(
+            "userEmail/userName and userPassword are required", 400
+        )
+
+    ok, result_or_msg = login_user_service(
+        user_email=user_email,
+        user_name=user_name,
+        password=user_password,
+    )
     if not ok:
         return error_response(result_or_msg, 401)
 

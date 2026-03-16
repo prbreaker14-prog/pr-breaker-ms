@@ -32,10 +32,12 @@ def jwt_required(fn: F) -> F:
 
             return error_response("Invalid token type", 401)
 
-        # Attach user payload to flask global context
+        # Attach user payload to flask global context (support both snake_case and camelCase)
         g.current_user = {
             "user_id": payload.get("user_id"),
+            "userId": payload.get("user_id"),
             "email": payload.get("email"),
+            "userEmail": payload.get("email"),
         }
 
         return fn(*args, **kwargs)
