@@ -69,7 +69,24 @@ services:
     networks:
       - prbreaker-net
 
-  # ── Identity DB ─────────────────────────────────────────────────────────────
+  workoutgroups-service:
+    build:
+      context: .
+      dockerfile: services/workoutgroups-service/Dockerfile
+    container_name: workoutgroups-service
+    environment:
+      PORT: "5000"
+      JWT_SECRET: "super-secret-change-me"
+      WGROUPS_DATABASE_URL: "postgresql+psycopg2://wgroups_user:wgroups_password@wgroups-db:5432/class_db"
+      IDENTITY_SERVICE_URL: "http://identity-service:5000"
+      WORKOUT_SERVICE_URL: "http://workout-service:5000"
+      WGROUPS_SERVICE_URL: "http://workoutgroups-service:5000"
+    depends_on:
+      - wgroups-db
+      - identity-service
+    ports:
+      - "5003:5000"
+
   identity-db:
     image: postgres:16-alpine
     container_name: identity-db
@@ -132,7 +149,21 @@ services:
       retries: 5
       start_period: 10s
 
+  wgroups-db:
+    image: postgres:16-alpine
+    container_name: wgroups-db
+    environment:
+      POSTGRES_DB: class_db
+      POSTGRES_USER: wgroups_user
+      POSTGRES_PASSWORD: wgroups_password
+    volumes:
+      - wgroups-db-data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+
 volumes:
   identity-db-data:
   workout-db-data:
   performance-db-data:
+  wgroups-db-data:
+
