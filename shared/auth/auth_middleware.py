@@ -26,6 +26,12 @@ def jwt_required(fn: F) -> F:
 
             return error_response(error or "Invalid token", 401)
 
+        # Only allow access tokens for protected endpoints
+        if payload.get("type") not in (None, "access"):
+            from shared.utils.response import error_response
+
+            return error_response("Invalid token type", 401)
+
         # Attach user payload to flask global context
         g.current_user = {
             "user_id": payload.get("user_id"),

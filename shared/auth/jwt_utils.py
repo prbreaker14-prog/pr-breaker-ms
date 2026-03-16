@@ -21,11 +21,44 @@ def create_access_token(user_id: str, email: str, expires_hours: int = 10) -> st
     payload = {
         "user_id": user_id,
         "email": email,
+        "type": "access",
         "exp": exp,
         "iat": now,
     }
     token = jwt.encode(payload, _get_jwt_secret(), algorithm=JWT_ALGORITHM)
     # PyJWT >= 2.0 returns str, but keep compatibility
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
+    return token
+
+
+def create_refresh_token(user_id: str, email: str, expires_days: int = 30) -> str:
+    now = datetime.now(timezone.utc)
+    exp = now + timedelta(days=expires_days)
+    payload = {
+        "user_id": user_id,
+        "email": email,
+        "type": "refresh",
+        "exp": exp,
+        "iat": now,
+    }
+    token = jwt.encode(payload, _get_jwt_secret(), algorithm=JWT_ALGORITHM)
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
+    return token
+
+
+def create_password_reset_token(user_id: str, email: str, expires_minutes: int = 15) -> str:
+    now = datetime.now(timezone.utc)
+    exp = now + timedelta(minutes=expires_minutes)
+    payload = {
+        "user_id": user_id,
+        "email": email,
+        "type": "reset",
+        "exp": exp,
+        "iat": now,
+    }
+    token = jwt.encode(payload, _get_jwt_secret(), algorithm=JWT_ALGORITHM)
     if isinstance(token, bytes):
         token = token.decode("utf-8")
     return token
