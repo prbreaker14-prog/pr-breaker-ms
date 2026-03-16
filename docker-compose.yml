@@ -1,6 +1,12 @@
 version: "3.9"
 
+networks:
+  prbreaker-net:
+    driver: bridge
+
 services:
+
+  # ── Identity Service ────────────────────────────────────────────────────────
   identity-service:
     build:
       context: .
@@ -9,14 +15,17 @@ services:
     environment:
       PORT: "5000"
       JWT_SECRET: "super-secret-change-me"
-      IDENTITY_DATABASE_URL: "postgresql+psycopg2://identity_user:identity_password@identity-db:5432/identity_db"
-      IDENTITY_SERVICE_URL: "http://identity-service:5000"
+      DATABASE_URL: "postgresql+psycopg2://identity_user:identity_password@identity-db:5432/identity_db"
       WORKOUT_SERVICE_URL: "http://workout-service:5000"
     depends_on:
-      - identity-db
+      identity-db:
+        condition: service_healthy        # wait for Postgres to be ready
     ports:
       - "5001:5000"
+    networks:
+      - prbreaker-net
 
+  # ── Workout Service ─────────────────────────────────────────────────────────
   workout-service:
     build:
       context: .
@@ -25,14 +34,40 @@ services:
     environment:
       PORT: "5000"
       JWT_SECRET: "super-secret-change-me"
-      WORKOUT_DATABASE_URL: "postgresql+psycopg2://workout_user:workout_password@workout-db:5432/workout_db"
+      DATABASE_URL: "postgresql+psycopg2://workout_user:workout_password@workout-db:5432/workout_db"
       IDENTITY_SERVICE_URL: "http://identity-service:5000"
-      WORKOUT_SERVICE_URL: "http://workout-service:5000"
     depends_on:
-      - workout-db
-      - identity-service
+      workout-db:
+        condition: service_healthy        # wait for Postgres to be ready
+      identity-service:
+        condition: service_started
     ports:
       - "5002:5000"
+    networks:
+      - prbreaker-net
+
+  # ── Performance Service ─────────────────────────────────────────────────────
+  performance-service:
+    build:
+      context: .
+      dockerfile: services/performance-service/Dockerfile
+    container_name: performance-service
+    environment:
+      PORT: "5000"
+      JWT_SECRET: "super-secret-change-me"
+      DATABASE_URL: "postgresql+psycopg2://performance_user:performance_password@performance-db:5432/performance_db"  # fix 1: correct var name + correct db name
+      IDENTITY_SERVICE_URL: "http://identity-service:5000"
+      WORKOUT_SERVICE_URL: "http://workout-service:5000"
+      BYPASS_AUTH: "true"   
+    depends_on:
+      performance-db:
+        condition: service_healthy        # wait for Postgres to be ready
+      workout-service:
+        condition: service_started
+    ports:
+      - "5004:5000"
+    networks:
+      - prbreaker-net
 
   workoutgroups-service:
     build:
@@ -63,7 +98,16 @@ services:
       - identity-db-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    networks:
+      - prbreaker-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U identity_user -d identity_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
+  # ── Workout DB ──────────────────────────────────────────────────────────────
   workout-db:
     image: postgres:16-alpine
     container_name: workout-db
@@ -74,7 +118,36 @@ services:
     volumes:
       - workout-db-data:/var/lib/postgresql/data
     ports:
-      - "5434:5432"
+      - "5434:5432"                       # fix 2: unique host port
+    networks:
+      - prbreaker-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workout_user -d workout_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── Performance DB ──────────────────────────────────────────────────────────
+  performance-db:
+    image: postgres:16-alpine
+    container_name: performance-db
+    environment:
+      POSTGRES_DB: performance_db
+      POSTGRES_USER: performance_user
+      POSTGRES_PASSWORD: performance_password
+    volumes:
+      - performance-db-data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"                       # fix 2: was 5434, now unique
+    networks:
+      - prbreaker-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U performance_user -d performance_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   wgroups-db:
     image: postgres:16-alpine
@@ -91,5 +164,6 @@ services:
 volumes:
   identity-db-data:
   workout-db-data:
+  performance-db-data:
   wgroups-db-data:
 
