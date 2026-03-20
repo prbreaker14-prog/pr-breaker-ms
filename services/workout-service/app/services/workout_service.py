@@ -9,6 +9,7 @@ def _serialize(workout: Workout) -> Dict[str, Any]:
         "id": workout.id,
         "name": workout.name,
         "type": workout.type,
+        "user_id": workout.user_id,
         "has_sets": workout.has_sets,
         "has_reps": workout.has_reps,
         "has_weight": workout.has_weight,
@@ -20,15 +21,16 @@ def _serialize(workout: Workout) -> Dict[str, Any]:
     }
 
 
-def list_workouts_service() -> List[Dict[str, Any]]:
-    workouts = Workout.query.order_by(Workout.name.asc()).all()
+def list_workouts_service(user_id: str) -> List[Dict[str, Any]]:
+    workouts = Workout.query.filter_by(user_id=user_id).order_by(Workout.name.asc()).all()
     return [_serialize(w) for w in workouts]
 
 
-def create_workout_service(data: Dict[str, Any]) -> Dict[str, Any]:
+def create_workout_service(data: Dict[str, Any], user_id: str) -> Dict[str, Any]:
     workout = Workout(
         name=data.get("name"),
         type=data.get("type"),
+        user_id=user_id,
         has_sets=bool(data.get("has_sets", False)),
         has_reps=bool(data.get("has_reps", False)),
         has_weight=bool(data.get("has_weight", False)),
@@ -41,15 +43,15 @@ def create_workout_service(data: Dict[str, Any]) -> Dict[str, Any]:
     return _serialize(workout)
 
 
-def get_workout_service(workout_id: str) -> Optional[Dict[str, Any]]:
-    workout = Workout.query.get(workout_id)
+def get_workout_service(workout_id: str, user_id: str) -> Optional[Dict[str, Any]]:
+    workout = Workout.query.filter_by(id=workout_id, user_id=user_id).first()
     if not workout:
         return None
     return _serialize(workout)
 
 
-def update_workout_service(workout_id: str, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    workout = Workout.query.get(workout_id)
+def update_workout_service(workout_id: str, data: Dict[str, Any], user_id: str) -> Optional[Dict[str, Any]]:
+    workout = Workout.query.filter_by(id=workout_id, user_id=user_id).first()
     if not workout:
         return None
 
@@ -70,8 +72,8 @@ def update_workout_service(workout_id: str, data: Dict[str, Any]) -> Optional[Di
     return _serialize(workout)
 
 
-def delete_workout_service(workout_id: str) -> bool:
-    workout = Workout.query.get(workout_id)
+def delete_workout_service(workout_id: str, user_id: str) -> bool:
+    workout = Workout.query.filter_by(id=workout_id, user_id=user_id).first()
     if not workout:
         return False
     db.session.delete(workout)

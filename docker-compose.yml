@@ -109,6 +109,8 @@ services:
       - identity-service
     ports:
       - "5003:5000"
+    networks:
+      - prbreaker-net
 
   identity-db:
     image: postgres:16-alpine
@@ -183,6 +185,8 @@ services:
       - wgroups-db-data:/var/lib/postgresql/data
     ports:
       - "5436:5432"
+    networks:
+      - prbreaker-net
 
 volumes:
   identity-db-data:

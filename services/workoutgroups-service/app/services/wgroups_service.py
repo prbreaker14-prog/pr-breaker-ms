@@ -71,19 +71,19 @@ def _serialize_group(
 
 
 def list_groups_service(
-    include_workouts: bool = False, auth_header: Optional[str] = None
+    user_id: str, include_workouts: bool = False, auth_header: Optional[str] = None
 ) -> List[Dict[str, Any]]:
-    groups = WorkoutGroup.query.order_by(WorkoutGroup.created_at.asc()).all()
+    groups = WorkoutGroup.query.filter_by(user_id=user_id).order_by(WorkoutGroup.created_at.asc()).all()
     return [
         _serialize_group(g, include_workouts=include_workouts, auth_header=auth_header)
         for g in groups
     ]
 
 
-def create_group_service(data: Dict[str, Any]) -> Dict[str, Any]:
+def create_group_service(data: Dict[str, Any], user_id: str) -> Dict[str, Any]:
     group = WorkoutGroup(
         name=data.get("name"),
-        user_id=data.get("user_id"),
+        user_id=user_id,
     )
     db.session.add(group)
     db.session.flush()
@@ -102,23 +102,22 @@ def create_group_service(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def get_group_service(
-    group_id: str, include_workouts: bool = False, auth_header: Optional[str] = None
+    group_id: str, user_id: str, include_workouts: bool = False, auth_header: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
-    group = WorkoutGroup.query.get(group_id)
+    group = WorkoutGroup.query.filter_by(id=group_id, user_id=user_id).first()
     if not group:
         return None
     return _serialize_group(group, include_workouts=include_workouts, auth_header=auth_header)
 
 
-def update_group_service(group_id: str, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    group = WorkoutGroup.query.get(group_id)
+def update_group_service(group_id: str, data: Dict[str, Any], user_id: str) -> Optional[Dict[str, Any]]:
+    group = WorkoutGroup.query.filter_by(id=group_id, user_id=user_id).first()
     if not group:
         return None
 
     if "name" in data:
         group.name = data["name"]
-    if "user_id" in data:
-        group.user_id = data["user_id"]
+    # Do not allow updating user_id
 
     # If workouts list is provided, replace links.
     if "workouts" in data:
@@ -137,8 +136,8 @@ def update_group_service(group_id: str, data: Dict[str, Any]) -> Optional[Dict[s
     return _serialize_group(group)
 
 
-def delete_group_service(group_id: str) -> bool:
-    group = WorkoutGroup.query.get(group_id)
+def delete_group_service(group_id: str, user_id: str) -> bool:
+    group = WorkoutGroup.query.filter_by(id=group_id, user_id=user_id).first()
     if not group:
         return False
     # Explicitly delete link rows first, then the group (even though cascade also exists)
@@ -149,9 +148,9 @@ def delete_group_service(group_id: str) -> bool:
 
 
 def add_workout_to_group_service(
-    group_id: str, workout_id: str, position: Optional[int] = None
+    group_id: str, workout_id: str, user_id: str, position: Optional[int] = None
 ) -> Tuple[bool, Any]:
-    group = WorkoutGroup.query.get(group_id)
+    group = WorkoutGroup.query.filter_by(id=group_id, user_id=user_id).first()
     if not group:
         return False, "Group not found"
 
@@ -187,9 +186,9 @@ def add_workout_to_group_service(
 
 
 def remove_workout_from_group_service(
-    group_id: str, workout_id: str
+    group_id: str, workout_id: str, user_id: str
 ) -> Tuple[bool, str]:
-    group = WorkoutGroup.query.get(group_id)
+    group = WorkoutGroup.query.filter_by(id=group_id, user_id=user_id).first()
     if not group:
         return False, "Group not found"
 
@@ -205,9 +204,9 @@ def remove_workout_from_group_service(
 
 
 def list_group_workouts_service(
-    group_id: str, auth_header: Optional[str] = None
+    group_id: str, user_id: str, auth_header: Optional[str] = None
 ) -> Tuple[bool, Any]:
-    group = WorkoutGroup.query.get(group_id)
+    group = WorkoutGroup.query.filter_by(id=group_id, user_id=user_id).first()
     if not group:
         return False, "Group not found"
 
@@ -231,9 +230,9 @@ def list_group_workouts_service(
 
 
 def reorder_group_workouts_service(
-    group_id: str, order: List[Dict[str, Any]]
+    group_id: str, user_id: str, order: List[Dict[str, Any]]
 ) -> Tuple[bool, Any]:
-    group = WorkoutGroup.query.get(group_id)
+    group = WorkoutGroup.query.filter_by(id=group_id, user_id=user_id).first()
     if not group:
         return False, "Group not found"
 

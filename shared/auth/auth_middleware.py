@@ -40,6 +40,9 @@ def jwt_required(fn: F) -> F:
             "userEmail": payload.get("email"),
         }
 
+        # Also attach user_id to request.user for convenience
+        request.user = payload.get("user_id")
+
         return fn(*args, **kwargs)
 
     return wrapper  # type: ignore[return-value]

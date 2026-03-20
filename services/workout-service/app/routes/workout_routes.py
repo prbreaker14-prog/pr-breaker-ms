@@ -14,13 +14,13 @@ from app.controllers.workout_controller import (
 workouts_bp = Blueprint("workouts", __name__)
 
 
-@workouts_bp.get("/")
+@workouts_bp.get("")
 @jwt_required
 def list_workouts():
     return list_workouts_controller()
 
 
-@workouts_bp.post("/")
+@workouts_bp.post("")
 @jwt_required
 def create_workout():
     return create_workout_controller()

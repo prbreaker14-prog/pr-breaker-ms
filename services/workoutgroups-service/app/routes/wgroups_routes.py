@@ -18,13 +18,13 @@ from app.controllers.wgroups_controller import (
 wgroups_bp = Blueprint("wgroups", __name__)
 
 
-@wgroups_bp.get("/")
+@wgroups_bp.get("")
 @jwt_required
 def list_wgroups():
     return list_wgroups_controller()
 
 
-@wgroups_bp.post("/")
+@wgroups_bp.post("")
 @jwt_required
 def create_wgroups():
     return create_wgroups_controller()
