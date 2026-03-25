@@ -9,7 +9,7 @@ from app.services.wgroups_service import (
     add_workout_to_group_service,
     remove_workout_from_group_service,
     list_group_workouts_service,
-    reorder_group_workouts_service,
+    clear_workout_from_all_groups_service,
 )
 from shared.utils.response import success_response, error_response
 
@@ -29,10 +29,10 @@ def list_wgroups_controller():
 
 def create_wgroups_controller():
     payload = request.get_json(silent=True) or {}
-    name = payload.get("name")
+    workoutGroupName = payload.get("workoutGroupName")
 
-    if not name:
-        return error_response("name is required", 400)
+    if not workoutGroupName:
+        return error_response("workoutGroupName is required", 400)
 
     user_id = request.user
     created = create_group_service(payload, user_id)
@@ -69,13 +69,12 @@ def delete_wgroups_controller(group_id: str):
 def add_workout_to_group_controller(group_id: str):
     payload = request.get_json(silent=True) or {}
     workout_id = payload.get("workout_id")
-    position = payload.get("position")
     user_id = request.user
 
     if not workout_id:
         return error_response("workout_id is required", 400)
 
-    ok, result_or_msg = add_workout_to_group_service(group_id, workout_id, user_id, position)
+    ok, result_or_msg = add_workout_to_group_service(group_id, workout_id, user_id)
     if not ok:
         return error_response(result_or_msg, 400)
 
@@ -99,16 +98,10 @@ def list_group_workouts_controller(group_id: str):
     return success_response("Group workouts fetched", result_or_msg)
 
 
-def reorder_group_workouts_controller(group_id: str):
-    payload = request.get_json(silent=True) or {}
-    order = payload.get("order") or []
-    user_id = request.user
-    if not isinstance(order, list) or not order:
-        return error_response("order must be a non-empty list", 400)
-
-    ok, result_or_msg = reorder_group_workouts_service(group_id, user_id, order)
+def clear_workout_from_all_groups_controller(workout_id: str):
+    ok = clear_workout_from_all_groups_service(workout_id)
     if not ok:
-        return error_response(result_or_msg, 400)
-    return success_response("Group workouts reordered", result_or_msg)
+        return error_response("Failed to clear workout from groups", 500)
+    return success_response("Workout cleared from all groups", {})
 
 

@@ -7,7 +7,7 @@ from app.models import Workout
 def _serialize(workout: Workout) -> Dict[str, Any]:
     return {
         "id": workout.id,
-        "name": workout.name,
+        "workoutName": workout.workoutName,
         "type": workout.type,
         "user_id": workout.user_id,
         "has_sets": workout.has_sets,
@@ -22,13 +22,13 @@ def _serialize(workout: Workout) -> Dict[str, Any]:
 
 
 def list_workouts_service(user_id: str) -> List[Dict[str, Any]]:
-    workouts = Workout.query.filter_by(user_id=user_id).order_by(Workout.name.asc()).all()
+    workouts = Workout.query.filter_by(user_id=user_id).order_by(Workout.workoutName.asc()).all()
     return [_serialize(w) for w in workouts]
 
 
 def create_workout_service(data: Dict[str, Any], user_id: str) -> Dict[str, Any]:
     workout = Workout(
-        name=data.get("name"),
+        workoutName=data.get("workoutName"),
         type=data.get("type"),
         user_id=user_id,
         has_sets=bool(data.get("has_sets", False)),
@@ -56,7 +56,7 @@ def update_workout_service(workout_id: str, data: Dict[str, Any], user_id: str) 
         return None
 
     for field in [
-        "name",
+        "workoutName",
         "type",
         "has_sets",
         "has_reps",

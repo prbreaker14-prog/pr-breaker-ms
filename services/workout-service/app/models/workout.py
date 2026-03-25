@@ -8,7 +8,7 @@ class Workout(db.Model):
     __tablename__ = "workouts"
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(255), nullable=False)
+    workoutName = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(100), nullable=True)
     user_id = db.Column(db.String(36), nullable=False)
     has_sets = db.Column(db.Boolean, default=False, nullable=False)

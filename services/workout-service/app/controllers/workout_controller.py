@@ -18,9 +18,9 @@ def list_workouts_controller():
 
 def create_workout_controller():
     payload = request.get_json(silent=True) or {}
-    name = payload.get("name")
-    if not name:
-        return error_response("name is required", 400)
+    workoutName = payload.get("workoutName")
+    if not workoutName:
+        return error_response("workoutName is required", 400)
 
     user_id = request.user
     created = create_workout_service(payload, user_id)

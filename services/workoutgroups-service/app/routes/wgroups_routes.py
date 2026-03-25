@@ -11,7 +11,7 @@ from app.controllers.wgroups_controller import (
     add_workout_to_group_controller,
     remove_workout_from_group_controller,
     list_group_workouts_controller,
-    reorder_group_workouts_controller,
+    clear_workout_from_all_groups_controller,
 )
 
 
@@ -67,8 +67,8 @@ def list_group_workouts(wgroup_id: str):
     return list_group_workouts_controller(wgroup_id)
 
 
-@wgroups_bp.put("/<wgroup_id>/workouts/reorder")
+@wgroups_bp.delete("/workouts/<workout_id>")
 @jwt_required
-def reorder_group_workouts(wgroup_id: str):
-    return reorder_group_workouts_controller(wgroup_id)
+def clear_workout_from_all_groups(workout_id: str):
+    return clear_workout_from_all_groups_controller(workout_id)
 
