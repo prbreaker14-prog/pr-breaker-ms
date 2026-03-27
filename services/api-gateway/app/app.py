@@ -1,4 +1,6 @@
+from email.mime import base
 import os
+from os import path
 from urllib.parse import urljoin
 
 import requests
@@ -51,7 +53,10 @@ def create_app() -> Flask:
             return {"success": False, "message": "Unknown route", "data": {}}, 404
 
         target = urljoin(base.rstrip("/") + "/", path)
+        # Remove "performance/" prefix before forwarding
+        # forward_path = path.split("/", 1)[1] if "/" in path else ""
 
+        # target = urljoin(base.rstrip("/") + "/", forward_path)
         # Forward headers (keep Authorization, Content-Type, etc.)
         headers = {}
         for k, v in request.headers.items():

@@ -1,11 +1,16 @@
 import uuid
 from datetime import datetime
+from sqlalchemy import UniqueConstraint
 
 from app import db
 
 
 class WorkoutSession(db.Model):
     __tablename__ = "workout_sessions"
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "class_id", "date", name="uq_user_class_date"),
+    )
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.String(36), nullable=False, index=True)

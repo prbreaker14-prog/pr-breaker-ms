@@ -44,8 +44,8 @@ def create_app(config_name: str | None = None) -> Flask:
     from app.routes.session_routes import session_bp
     from app.routes.log_routes import log_bp 
     
-    app.register_blueprint(session_bp, url_prefix="/sessions")
-    app.register_blueprint(log_bp, url_prefix="/logs")
+    app.register_blueprint(session_bp, url_prefix="/performance/sessions")
+    app.register_blueprint(log_bp, url_prefix="/performance/logs")
 
     @app.route("/health", methods=["GET"])
     def health():

@@ -16,6 +16,12 @@ def _parse_date_param(param_name: str):
         )
 
 
+from datetime import date
+from flask import request
+from app.services import session_service
+from app.utils.response import error_response, success_response
+
+
 def create_session(current_user: dict):
     body = request.get_json(silent=True) or {}
 
@@ -35,16 +41,30 @@ def create_session(current_user: dict):
         session_date = date.today()
 
     try:
-        session = session_service.create_session(
+        # ✅ Now returns (session, already_exists)
+        session, already_exists = session_service.create_session(
             user_id=current_user["id"],
             class_id=class_id.strip(),
             date=session_date,
         )
+
     except Exception as e:
         return error_response(f"Failed to create session: {str(e)}", status_code=500)
 
-    return success_response("Workout session created.", data=session.to_dict(), status_code=201)
+    # ✅ Handle duplicate case
+    if already_exists:
+        return success_response(
+            "Session already exists.",
+            data=session.to_dict(),
+            status_code=200
+        )
 
+    # ✅ Normal creation
+    return success_response(
+        "Workout session created.",
+        data=session.to_dict(),
+        status_code=201
+    )
 
 def list_sessions(current_user: dict):
     class_id  = request.args.get("classId") or None

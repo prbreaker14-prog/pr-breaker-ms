@@ -4,17 +4,40 @@ from typing import Optional
 from app import db
 from app.models import WorkoutSession
 
+from sqlalchemy.exc import IntegrityError
 
-def create_session(user_id: str, class_id: str, date: date_type) -> WorkoutSession:
-    session = WorkoutSession(
-        user_id=user_id,
-        class_id=class_id,
-        date=date,
+
+def create_session(user_id: str, class_id: str, date: date_type):
+    existing_session = (
+        WorkoutSession.query
+        .filter_by(user_id=user_id, class_id=class_id, date=date)
+        .first()
     )
-    db.session.add(session)
-    db.session.commit()
-    return session
 
+    if existing_session:
+        return existing_session, True  # already exists
+
+    try:
+        session = WorkoutSession(
+            user_id=user_id,
+            class_id=class_id,
+            date=date,
+        )
+        db.session.add(session)
+        db.session.commit()
+
+        return session, False  # newly created
+
+    except IntegrityError:
+        db.session.rollback()
+
+        existing_session = (
+            WorkoutSession.query
+            .filter_by(user_id=user_id, class_id=class_id, date=date)
+            .first()
+        )
+
+        return existing_session, True
 
 def get_session_by_id(session_id: str) -> WorkoutSession:
     session = db.session.get(WorkoutSession, session_id)
