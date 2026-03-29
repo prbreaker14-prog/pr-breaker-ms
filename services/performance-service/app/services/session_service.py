@@ -1,5 +1,6 @@
 from datetime import date as date_type
 from typing import Optional
+import requests
 
 from app import db
 from app.models import WorkoutSession
@@ -7,7 +8,7 @@ from app.models import WorkoutSession
 from sqlalchemy.exc import IntegrityError
 
 
-def create_session(user_id: str, class_id: str, date: date_type):
+def create_session(user_id: str, class_id: str, wgroupsName: str, date: date_type):
     existing_session = (
         WorkoutSession.query
         .filter_by(user_id=user_id, class_id=class_id, date=date)
@@ -21,6 +22,7 @@ def create_session(user_id: str, class_id: str, date: date_type):
         session = WorkoutSession(
             user_id=user_id,
             class_id=class_id,
+            wgroupsName=wgroupsName,
             date=date,
         )
         db.session.add(session)
@@ -33,7 +35,7 @@ def create_session(user_id: str, class_id: str, date: date_type):
 
         existing_session = (
             WorkoutSession.query
-            .filter_by(user_id=user_id, class_id=class_id, date=date)
+            .filter_by(user_id=user_id, class_id=class_id, wgroupsName=wgroupsName, date=date)
             .first()
         )
 

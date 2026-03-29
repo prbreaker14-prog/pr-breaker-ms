@@ -14,6 +14,12 @@ def log_sets(current_user: dict):
     return log_controller.log_sets(current_user)
 
 
+@log_bp.route("/upsert", methods=["POST"])
+@token_required
+def upsert_logs(current_user: dict):
+    return log_controller.upsert_workout_logs(current_user)
+
+
 @log_bp.route("/session/<string:session_id>", methods=["GET"])
 @token_required
 def get_logs_for_session(current_user: dict, session_id: str):
