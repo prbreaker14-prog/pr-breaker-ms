@@ -7,8 +7,16 @@ from app import db
 class WorkoutLog(db.Model):
     __tablename__ = "workout_logs"
 
+    __table_args__ = (
+    db.UniqueConstraint(
+        "session_id", "workout_id", "set_number",
+        name="unique_session_workout_set"
+    ),
+)
+
     id = db.Column( db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()),)
     session_id = db.Column(db.String(36), db.ForeignKey("workout_sessions.id", ondelete="CASCADE"), nullable=False, index=True,)
+    user_id = db.Column(db.String(36),nullable=False,index=True,)
     workout_id = db.Column(db.String(36), nullable=False, index=True)
     set_number = db.Column(db.Integer, nullable=False)
     reps = db.Column(db.Integer, nullable=True)
@@ -31,6 +39,7 @@ class WorkoutLog(db.Model):
         return {
             "id": self.id,
             "sessionId": self.session_id,
+            "userId": self.user_id,  
             "workoutId": self.workout_id,
             "setNumber": self.set_number,
             "reps": self.reps,

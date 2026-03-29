@@ -26,8 +26,13 @@ def create_session(current_user: dict):
     body = request.get_json(silent=True) or {}
 
     class_id = body.get("classId")
+
+    wgroupsName = body.get("wgroupsName")
     if not class_id or not isinstance(class_id, str) or not class_id.strip():
         return error_response("classId (UUID string) is required.", status_code=400)
+    
+    if not wgroupsName or not isinstance(wgroupsName, str) or not wgroupsName.strip():
+        wgroupsName = "Unknown Group"
 
     raw_date = body.get("date")
     if raw_date:
@@ -45,6 +50,7 @@ def create_session(current_user: dict):
         session, already_exists = session_service.create_session(
             user_id=current_user["id"],
             class_id=class_id.strip(),
+            wgroupsName=wgroupsName.strip(),
             date=session_date,
         )
 
@@ -68,8 +74,10 @@ def create_session(current_user: dict):
 
 def list_sessions(current_user: dict):
     class_id  = request.args.get("classId") or None
+
     from_date = _parse_date_param("fromDate")
     to_date   = _parse_date_param("toDate")
+    wgroupsName = request.args.get("wgroupsName") or None
     if isinstance(from_date, tuple):
         return from_date
     if isinstance(to_date, tuple):
