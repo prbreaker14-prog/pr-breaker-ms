@@ -1,0 +1,6 @@
+postgres:
+  db: performance_db
+  user: performance_user
+  password: performance_password
+  port: 5432
+storage: 1Gi

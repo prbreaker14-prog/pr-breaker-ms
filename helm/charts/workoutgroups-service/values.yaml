@@ -1,0 +1,13 @@
+replicaCount: 1
+image:
+  repository: prbreaker/workoutgroups-service
+  tag: latest
+  pullPolicy: Always
+port: 5000
+nodePort: 30003
+env:
+  identityServiceUrl: "http://identity-service:5000"
+  workoutServiceUrl: "http://workout-service:5000"
+  wgroupsServiceUrl: "http://workoutgroups-service:5000"
+db:
+  url: "postgresql+psycopg2://wgroups_user:wgroups_password@wgroups-db:5432/class_db"

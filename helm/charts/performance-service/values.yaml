@@ -1,0 +1,13 @@
+replicaCount: 1
+image:
+  repository: prbreaker/performance-service
+  tag: latest
+  pullPolicy: Always
+port: 5000
+nodePort: 30004
+bypassAuth: "false"
+env:
+  identityServiceUrl: "http://identity-service:5000"
+  workoutServiceUrl: "http://workout-service:5000"
+db:
+  url: "postgresql+psycopg2://performance_user:performance_password@performance-db:5432/performance_db"

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: performance-db
+description: PostgreSQL database for performance-db
+type: application
+version: 1.0.0

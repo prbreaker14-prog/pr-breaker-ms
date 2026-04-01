@@ -1,0 +1,5 @@
+apiVersion: v2
+name: performance-service
+description: Performance tracking microservice
+type: application
+version: 1.0.0

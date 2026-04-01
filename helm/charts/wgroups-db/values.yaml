@@ -1,0 +1,6 @@
+postgres:
+  db: class_db
+  user: wgroups_user
+  password: wgroups_password
+  port: 5432
+storage: 1Gi

@@ -1,0 +1,13 @@
+replicaCount: 1
+image:
+  repository: prbreaker/api-gateway
+  tag: latest
+  pullPolicy: Always
+port: 5000
+nodePort: 30000
+env:
+  identityServiceUrl: "http://identity-service:5000"
+  workoutServiceUrl: "http://workout-service:5000"
+  wgroupsServiceUrl: "http://workoutgroups-service:5000"
+  performanceServiceUrl: "http://performance-service:5000"
+  corsAllowOrigins: ""

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: api-gateway
+description: API Gateway — routes all external traffic to microservices
+type: application
+version: 1.0.0

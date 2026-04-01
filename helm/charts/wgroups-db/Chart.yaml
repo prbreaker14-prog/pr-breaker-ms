@@ -1,0 +1,5 @@
+apiVersion: v2
+name: wgroups-db
+description: PostgreSQL database for wgroups-db
+type: application
+version: 1.0.0

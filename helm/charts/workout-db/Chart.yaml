@@ -1,0 +1,5 @@
+apiVersion: v2
+name: workout-db
+description: PostgreSQL database for workout-db
+type: application
+version: 1.0.0

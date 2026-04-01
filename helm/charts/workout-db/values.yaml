@@ -1,0 +1,6 @@
+postgres:
+  db: workout_db
+  user: workout_user
+  password: workout_password
+  port: 5432
+storage: 1Gi

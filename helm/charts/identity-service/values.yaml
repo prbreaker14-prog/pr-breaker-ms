@@ -1,0 +1,11 @@
+replicaCount: 1
+image:
+  repository: prbreaker/identity-service
+  tag: latest
+  pullPolicy: Always
+port: 5000
+nodePort: 30001
+env:
+  workoutServiceUrl: "http://workout-service:5000"
+db:
+  url: "postgresql+psycopg2://identity_user:identity_password@identity-db:5432/identity_db"

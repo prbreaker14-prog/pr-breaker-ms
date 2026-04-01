@@ -1,0 +1,6 @@
+postgres:
+  db: identity_db
+  user: identity_user
+  password: identity_password
+  port: 5432
+storage: 1Gi

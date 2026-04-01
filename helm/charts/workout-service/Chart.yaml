@@ -1,0 +1,5 @@
+apiVersion: v2
+name: workout-service
+description: Workout microservice
+type: application
+version: 1.0.0
