@@ -10,4 +10,4 @@ env:
   workoutServiceUrl: "http://workout-service:5000"
   wgroupsServiceUrl: "http://workoutgroups-service:5000"
 db:
-  url: "postgresql+psycopg2://wgroups_user:wgroups_password@wgroups-db:5432/class_db"
+  url: "postgresql+psycopg2://wgroups_user:wgroups_password@workoutgroups-db:5432/class_db"

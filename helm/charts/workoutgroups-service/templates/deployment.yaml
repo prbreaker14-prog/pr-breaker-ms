@@ -21,7 +21,7 @@ spec:
             - sh
             - -c
             - |
-              until nc -z wgroups-db 5432; do
+              until nc -z workoutgroups-db 5432; do
                 echo "Waiting for wgroups-db..."; sleep 2;
               done
               echo "wgroups-db is ready"

@@ -1,0 +1,30 @@
+dependencies:
+- name: api-gateway
+  repository: file://charts/api-gateway
+  version: 1.0.0
+- name: identity-service
+  repository: file://charts/identity-service
+  version: 1.0.0
+- name: workout-service
+  repository: file://charts/workout-service
+  version: 1.0.0
+- name: workoutgroups-service
+  repository: file://charts/workoutgroups-service
+  version: 1.0.0
+- name: performance-service
+  repository: file://charts/performance-service
+  version: 1.0.0
+- name: identity-db
+  repository: file://charts/identity-db
+  version: 1.0.0
+- name: workout-db
+  repository: file://charts/workout-db
+  version: 1.0.0
+- name: workoutgroups-db
+  repository: file://charts/workoutgroups-db
+  version: 1.0.0
+- name: performance-db
+  repository: file://charts/performance-db
+  version: 1.0.0
+digest: sha256:a8240feb77106c4e6631b2067fdd7e64ff452c43a85aef923464385de4b7d5c2
+generated: "2026-04-01T15:28:58.045732924Z"
