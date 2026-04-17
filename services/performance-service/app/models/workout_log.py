@@ -18,6 +18,7 @@ class WorkoutLog(db.Model):
     session_id = db.Column(db.String(36), db.ForeignKey("workout_sessions.id", ondelete="CASCADE"), nullable=False, index=True,)
     user_id = db.Column(db.String(36),nullable=False,index=True,)
     workout_id = db.Column(db.String(36), nullable=False, index=True)
+    workout_name = db.Column(db.String(255), nullable=False)
     set_number = db.Column(db.Integer, nullable=False)
     reps = db.Column(db.Integer, nullable=True)
     weight = db.Column(db.Float, nullable=True)    
@@ -41,6 +42,7 @@ class WorkoutLog(db.Model):
             "sessionId": self.session_id,
             "userId": self.user_id,  
             "workoutId": self.workout_id,
+            "workoutName": self.workout_name,
             "setNumber": self.set_number,
             "reps": self.reps,
             "weight": self.weight,

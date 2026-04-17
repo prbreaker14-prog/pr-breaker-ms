@@ -17,7 +17,8 @@ services:
       WGROUPS_SERVICE_URL: "http://workoutgroups-service:5000"
       PERFORMANCE_SERVICE_URL: "http://performance-service:5000"
       # Allow frontend running on localhost:8100 to call the API gateway
-      CORS_ALLOW_ORIGINS: "http://localhost:8100"
+      CORS_ALLOW_ORIGINS: "http://localhost:8100,http://localhost,ionic://localhost,capacitor://localhost"
+
     depends_on:
       - identity-service
       - workout-service

@@ -12,7 +12,13 @@ def _verify_session_ownership(session: WorkoutSession, requesting_user_id: str) 
         raise PermissionError("You do not have permission to log to this session.")
 
 
-def log_sets(session_id: str, workout_id: str, sets: list[dict], requesting_user_id: str) -> list[WorkoutLog]:
+def log_sets(
+    session_id: str,
+    workout_id: str,
+    workout_name: str,
+    sets: list[dict],
+    requesting_user_id: str,
+) -> list[WorkoutLog]:
 
     session = get_session_by_id(session_id)
     _verify_session_ownership(session, requesting_user_id)
@@ -58,6 +64,7 @@ def log_sets(session_id: str, workout_id: str, sets: list[dict], requesting_user
                     user_id=requesting_user_id,
                     session_id=session_id,
                     workout_id=workout_id,
+                    workout_name=workout_name,
                     set_number=log.set_number,
                     reps=log.reps,
                     weight=log.weight,
@@ -73,6 +80,7 @@ def log_sets(session_id: str, workout_id: str, sets: list[dict], requesting_user
                 user_id=requesting_user_id,
                 session_id=session_id,
                 workout_id=workout_id,
+                workout_name=workout_name,
                 set_number=1,
                 reps=None,
                 weight=None,
@@ -93,6 +101,7 @@ def log_sets(session_id: str, workout_id: str, sets: list[dict], requesting_user
         log = existing_logs[index - 1] if index <= len(existing_logs) else None
 
         if log:
+            log.workout_name = workout_name
             log.reps = set_data.get("reps", log.reps)
             log.weight = set_data.get("weight", log.weight)
             log.duration = set_data.get("duration", log.duration)
@@ -103,6 +112,7 @@ def log_sets(session_id: str, workout_id: str, sets: list[dict], requesting_user
                 user_id=requesting_user_id,
                 session_id=session_id,
                 workout_id=workout_id,
+                workout_name=workout_name,
                 set_number=index,
                 reps=set_data.get("reps"),
                 weight=set_data.get("weight"),
@@ -158,6 +168,7 @@ def get_history_for_workout( user_id: str, workout_id: str, limit: int = 10,) ->
                 "sessionId": session.id,
                 "date": session.date.isoformat(),
                 "classId": session.class_id,
+                "workoutName": log.workout_name,
                 "sets": [],
             }
         sessions_seen[session.id]["sets"].append({
@@ -179,7 +190,7 @@ def update_log( log_id: str, requesting_user_id: str, data: dict,) -> WorkoutLog
     session = get_session_by_id(log.session_id)
     _verify_session_ownership(session, requesting_user_id)
 
-    for field in ("reps", "weight", "duration", "calories"):
+    for field in ("reps", "weight", "duration", "calories", "workout_name"):
         if field in data:
             setattr(log, field, data[field])
 
@@ -198,7 +209,13 @@ def delete_log(log_id: str, requesting_user_id: str) -> None:
     db.session.delete(log)
     db.session.commit()
 
-def upsert_workout_logs(user_id: str, session_id: str, workout_id: str, sets: list):
+def upsert_workout_logs(
+    user_id: str,
+    session_id: str,
+    workout_id: str,
+    workout_name: str,
+    sets: list,
+):
     from app.models import WorkoutLog, WorkoutSession
     from app import db
 
@@ -232,6 +249,7 @@ def upsert_workout_logs(user_id: str, session_id: str, workout_id: str, sets: li
 
         if log:
             # UPDATE
+            log.workout_name = workout_name
             log.reps = s.get("reps", log.reps)
             log.weight = s.get("weight", log.weight)
             log.duration = s.get("duration", log.duration)
@@ -243,6 +261,7 @@ def upsert_workout_logs(user_id: str, session_id: str, workout_id: str, sets: li
                 user_id=user_id,
                 session_id=session_id,
                 workout_id=workout_id,
+                workout_name=workout_name,
                 set_number=set_number,
                 reps=s.get("reps"),
                 weight=s.get("weight"),

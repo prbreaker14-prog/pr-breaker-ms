@@ -2,6 +2,7 @@ import os
 import sys
 
 from flask import Flask
+from sqlalchemy import inspect, text
 
 from . import db, migrate
 
@@ -39,6 +40,7 @@ def create_app(config_name: str | None = None) -> Flask:
     # In a more advanced setup you would run migrations instead.
     with app.app_context():
         db.create_all()
+        _ensure_workout_name_column()
 
     # Register blueprints
     from app.routes.session_routes import session_bp
@@ -52,6 +54,34 @@ def create_app(config_name: str | None = None) -> Flask:
         return {"status": "ok", "service": "performance-service"}
 
     return app
+
+
+def _ensure_workout_name_column() -> None:
+    """
+    Backfill schema for existing databases that predate workout_name.
+    """
+    inspector = inspect(db.engine)
+    if not inspector.has_table("workout_logs"):
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("workout_logs")}
+    if "workout_name" in columns:
+        return
+
+    dialect = db.engine.dialect.name
+    if dialect == "postgresql":
+        db.session.execute(
+            text("ALTER TABLE workout_logs ADD COLUMN workout_name VARCHAR(255) NOT NULL DEFAULT ''")
+        )
+    elif dialect == "sqlite":
+        db.session.execute(
+            text("ALTER TABLE workout_logs ADD COLUMN workout_name VARCHAR(255) NOT NULL DEFAULT ''")
+        )
+    else:
+        db.session.execute(
+            text("ALTER TABLE workout_logs ADD COLUMN workout_name VARCHAR(255)")
+        )
+    db.session.commit()
 
 
 def main():

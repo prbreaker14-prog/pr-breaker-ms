@@ -9,6 +9,7 @@ from app.models import WorkoutLog, WorkoutSession
 
 # Fields that are valid metric inputs on a set
 _VALID_METRIC_KEYS = {"reps", "weight", "duration", "calories"}
+_VALID_LOG_UPDATE_KEYS = _VALID_METRIC_KEYS | {"workoutName"}
 
 
 def log_sets(current_user: dict):
@@ -16,12 +17,15 @@ def log_sets(current_user: dict):
 
     session_id = body.get("sessionId")
     workout_id = body.get("workoutId")
+    workout_name = body.get("workoutName")
     sets       = body.get("sets")
 
     if not session_id or not isinstance(session_id, str):
         return error_response("sessionId (UUID string) is required.", status_code=400)
     if not workout_id or not isinstance(workout_id, str):
         return error_response("workoutId (UUID string) is required.", status_code=400)
+    if not workout_name or not isinstance(workout_name, str):
+        return error_response("workoutName (string) is required.", status_code=400)
     if not sets or not isinstance(sets, list) or len(sets) == 0:
         return error_response(
             "sets must be a non-empty list of set objects.", status_code=400
@@ -40,6 +44,7 @@ def log_sets(current_user: dict):
         logs = log_service.log_sets(
             session_id=session_id.strip(),
             workout_id=workout_id.strip(),
+            workout_name=workout_name.strip(),
             sets=sets,
             requesting_user_id=current_user["id"],
         )
@@ -113,10 +118,16 @@ def get_workout_history(current_user: dict, workout_id: str):
 
 def update_log(current_user: dict, log_id: str):
     body = request.get_json(silent=True) or {}
-    updatable = {k: v for k, v in body.items() if k in _VALID_METRIC_KEYS}
+    updatable = {}
+    for key in _VALID_LOG_UPDATE_KEYS:
+        if key in body:
+            if key == "workoutName":
+                updatable["workout_name"] = body[key]
+            else:
+                updatable[key] = body[key]
     if not updatable:
         return error_response(
-            "Provide at least one of: reps, weight, duration, calories.",
+            "Provide at least one of: reps, weight, duration, calories, workoutName.",
             status_code=400,
         )
 
@@ -204,6 +215,7 @@ def upsert_workout_logs(current_user: dict):
     # date = body.get("date")
     session_id = body.get("sessionId")
     workout_id = body.get("workoutId")
+    workout_name = body.get("workoutName")
     sets = body.get("sets", [])
 
     user_id = current_user["id"]
@@ -217,6 +229,9 @@ def upsert_workout_logs(current_user: dict):
 
     if not workout_id:
         return error_response("workoutId is required", status_code=400)
+
+    if not workout_name or not isinstance(workout_name, str):
+        return error_response("workoutName is required", status_code=400)
 
     if not sets or not isinstance(sets, list):
         return error_response("sets must be a non-empty list", status_code=400)
@@ -233,6 +248,7 @@ def upsert_workout_logs(current_user: dict):
             user_id=user_id,
             session_id=session_id,
             workout_id=workout_id,
+            workout_name=workout_name.strip(),
             sets=sets
         )
 
