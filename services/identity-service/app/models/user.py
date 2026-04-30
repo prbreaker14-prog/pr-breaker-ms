@@ -23,3 +23,10 @@ class User(db.Model):
         cascade="all, delete-orphan",
     )
 
+    reset_otps = db.relationship(
+        "PasswordResetOTP",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="dynamic"
+    )
+

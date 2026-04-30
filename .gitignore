@@ -14,4 +14,4 @@ instance/
 .pytest_cache/
 .vscode/
 .idea/
-
+.env

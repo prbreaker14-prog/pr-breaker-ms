@@ -14,4 +14,4 @@ class PasswordResetOTP(db.Model):
     expires_at = db.Column(db.DateTime, nullable=False)
     consumed_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-
+    user = db.relationship("User", back_populates="reset_otps")
