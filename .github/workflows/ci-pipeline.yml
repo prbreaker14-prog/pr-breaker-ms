@@ -66,15 +66,15 @@ jobs:
         with:
           filters: |
             auth:
-              - 'services/auth/**'
+              - 'services/identity-service/**'
             apigateway:
-              - 'services/apigateway/**'
+              - 'services/api-gateway/**'
             performance:
-              - 'services/performance/**'
+              - 'services/performance-service/**'
             workout:
-              - 'services/workout/**'
+              - 'services/workout-service/**'
             workoutgroups:
-              - 'services/workoutgroups/**'
+              - 'services/workoutgroups-service/**'
 
   build-auth:
     needs: detect-changes
