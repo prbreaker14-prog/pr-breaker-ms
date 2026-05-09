@@ -92,7 +92,8 @@ jobs:
       - name: Build and push auth
         uses: docker/build-push-action@v5
         with:
-          context: ./services/identity-service
+          context: .
+          file: ./services/identity-service/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/identity-service:${{ github.sha }}
@@ -114,7 +115,8 @@ jobs:
       - name: Build and push apigateway
         uses: docker/build-push-action@v5
         with:
-          context: ./services/api-gateway
+          context: .
+          file: ./services/api-gateway/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/api-gateway:${{ github.sha }}
@@ -136,7 +138,8 @@ jobs:
       - name: Build and push performance
         uses: docker/build-push-action@v5
         with:
-          context: ./services/performance-service
+          context: .
+          file: ./services/performance-service/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/performance-service:${{ github.sha }}
@@ -158,7 +161,8 @@ jobs:
       - name: Build and push workout
         uses: docker/build-push-action@v5
         with:
-          context: ./services/workout-service
+          context: .
+          file: ./services/workout-service/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/workout-service:${{ github.sha }}
@@ -180,7 +184,8 @@ jobs:
       - name: Build and push workoutgroups
         uses: docker/build-push-action@v5
         with:
-          context: ./services/workoutgroups-service
+          context: .
+          file: ./services/workoutgroups-service/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/workoutgroups-service:${{ github.sha }}
