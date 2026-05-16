@@ -1,41 +1,41 @@
 apiVersion: v2
 name: prbreaker
-version: 0.1.0
+version: 1.0.0
 
 dependencies:
 
   - name: api-gateway
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/api-gateway"
 
   - name: identity-service
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/identity-service"
 
   - name: workout-service
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/workout-service"
 
   - name: workoutgroups-service
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/workoutgroups-service"
 
   - name: performance-service
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/performance-service"
 
   - name: identity-db
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/identity-db"
 
   - name: workout-db
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/workout-db"
 
   - name: workoutgroups-db
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/workoutgroups-db"
 
   - name: performance-db
-    version: 0.1.0
+    version: 1.0.0
     repository: "file://charts/performance-db"
