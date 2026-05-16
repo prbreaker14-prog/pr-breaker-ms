@@ -9,3 +9,5 @@ env:
   identityServiceUrl: "http://identity-service:5000"
 db:
   url: "postgresql+psycopg2://workout_user:workout_password@workout-db:5432/workout_db"
+global:
+  jwtSecret: "super-secret-change-me"
