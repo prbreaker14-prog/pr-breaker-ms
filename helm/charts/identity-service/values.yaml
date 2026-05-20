@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: prbreaker/identity-service
-  tag: latest
+  tag: 315e409aef6f030cf3f4dedbee46721070889086
   pullPolicy: Always
 port: 5000
 nodePort: 30001
@@ -10,4 +10,3 @@ env:
 db:
   url: "postgresql+psycopg2://identity_user:identity_password@identity-db:5432/identity_db"
 jwtSecret: "super-secret-change-me"
-
