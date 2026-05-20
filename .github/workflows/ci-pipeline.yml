@@ -37,11 +37,20 @@ jobs:
       workout: ${{ steps.filter.outputs.workout }}
       workoutgroups: ${{ steps.filter.outputs.workoutgroups }}
       run_all: ${{ steps.manual.outputs.run_all }}
+      branch_sha: ${{ steps.get-sha.outputs.sha }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Get helm-prebreaker SHA
+        id: get-sha
+        run: |
+          git fetch origin helm-prebreaker
+          BRANCH_SHA=$(git rev-parse origin/helm-prebreaker)
+          echo "sha=$BRANCH_SHA" >> $GITHUB_OUTPUT
+          echo "📌 helm-prebreaker SHA: $BRANCH_SHA"
 
       - name: Parse manual service selection
         id: manual
@@ -96,7 +105,7 @@ jobs:
           file: ./services/identity-service/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/identity-service:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/identity-service:${{ needs.detect-changes.outputs.branch_sha }}
             ${{ env.IMAGE_PREFIX }}/identity-service:latest
 
   build-apigateway:
@@ -119,7 +128,7 @@ jobs:
           file: ./services/api-gateway/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/api-gateway:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/api-gateway:${{ needs.detect-changes.outputs.branch_sha }}
             ${{ env.IMAGE_PREFIX }}/api-gateway:latest
 
   build-performance:
@@ -142,7 +151,7 @@ jobs:
           file: ./services/performance-service/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/performance-service:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/performance-service:${{ needs.detect-changes.outputs.branch_sha }}
             ${{ env.IMAGE_PREFIX }}/performance-service:latest
 
   build-workout:
@@ -165,7 +174,7 @@ jobs:
           file: ./services/workout-service/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/workout-service:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/workout-service:${{ needs.detect-changes.outputs.branch_sha }}
             ${{ env.IMAGE_PREFIX }}/workout-service:latest
 
   build-workoutgroups:
@@ -188,8 +197,74 @@ jobs:
           file: ./services/workoutgroups-service/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/workoutgroups-service:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/workoutgroups-service:${{ needs.detect-changes.outputs.branch_sha }}
             ${{ env.IMAGE_PREFIX }}/workoutgroups-service:latest
+
+  update-helm-values:
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-auth, build-apigateway, build-performance, build-workout, build-workoutgroups]
+    if: |
+      always() && !cancelled() &&
+      (
+        needs.build-auth.result == 'success' ||
+        needs.build-apigateway.result == 'success' ||
+        needs.build-performance.result == 'success' ||
+        needs.build-workout.result == 'success' ||
+        needs.build-workoutgroups.result == 'success'
+      )
+    steps:
+      - name: Checkout helm-prbreaker-cd branch
+        uses: actions/checkout@v4
+        with:
+          ref: helm-prbreaker-cd
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Update image tags for built services only
+        run: |
+          SHA="${{ needs.detect-changes.outputs.branch_sha }}"
+          SHORT_SHA="${SHA::7}"
+
+          if [ "${{ needs.build-auth.result }}" = "success" ]; then
+            yq -i ".image.tag = \"$SHA\"" helm/charts/identity-service/values.yaml
+            echo "✅ Updated identity-service to $SHA"
+          fi
+          if [ "${{ needs.build-apigateway.result }}" = "success" ]; then
+            yq -i ".image.tag = \"$SHA\"" helm/charts/api-gateway/values.yaml
+            echo "✅ Updated api-gateway to $SHA"
+          fi
+          if [ "${{ needs.build-performance.result }}" = "success" ]; then
+            yq -i ".image.tag = \"$SHA\"" helm/charts/performance-service/values.yaml
+            echo "✅ Updated performance-service to $SHA"
+          fi
+          if [ "${{ needs.build-workout.result }}" = "success" ]; then
+            yq -i ".image.tag = \"$SHA\"" helm/charts/workout-service/values.yaml
+            echo "✅ Updated workout-service to $SHA"
+          fi
+          if [ "${{ needs.build-workoutgroups.result }}" = "success" ]; then
+            yq -i ".image.tag = \"$SHA\"" helm/charts/workoutgroups-service/values.yaml
+            echo "✅ Updated workoutgroups-service to $SHA"
+          fi
+
+      - name: Commit and push to helm-prbreaker-cd
+        run: |
+          SHA="${{ needs.detect-changes.outputs.branch_sha }}"
+          SHORT_SHA="${SHA::7}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add helm/charts/*/values.yaml
+          if git diff --staged --quiet; then
+            echo "No values changed, skipping commit"
+          else
+            git commit -m "cd: update image tags to $SHORT_SHA (helm-prebreaker)"
+            git push origin helm-prbreaker-cd
+          fi
 
   notify:
     runs-on: ubuntu-latest
@@ -202,7 +277,4 @@ jobs:
           echo "| Service | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| auth | ${{ needs.build-auth.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| apigateway | ${{ needs.build-apigateway.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| performance | ${{ needs.build-performance.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| workout | ${{ needs.build-workout.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| workoutgroups | ${{ needs.build-workoutgroups.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| apigateway | ${{ needs.build-apigateway.result }} |" >> $GITHUB_STE
