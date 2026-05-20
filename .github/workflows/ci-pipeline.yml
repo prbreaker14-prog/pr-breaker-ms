@@ -279,4 +279,7 @@ jobs:
           echo "| Service | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| auth | ${{ needs.build-auth.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| apigateway | ${{ needs.build-apigateway.result }} |" >> $GITHUB_STE
+          echo "| apigateway | ${{ needs.build-apigateway.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| performance | ${{ needs.build-performance.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| workout | ${{ needs.build-workout.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| workoutgroups | ${{ needs.build-workoutgroups.result }} |" >> $GITHUB_STEP_SUMMARY
