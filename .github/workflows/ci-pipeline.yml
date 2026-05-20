@@ -95,6 +95,8 @@ jobs:
       needs.detect-changes.outputs.auth == 'true'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: helm-prebreaker
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -118,6 +120,8 @@ jobs:
       needs.detect-changes.outputs.apigateway == 'true'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: helm-prebreaker
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -141,6 +145,8 @@ jobs:
       needs.detect-changes.outputs.performance == 'true'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: helm-prebreaker
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -164,6 +170,8 @@ jobs:
       needs.detect-changes.outputs.workout == 'true'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: helm-prebreaker
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -187,6 +195,8 @@ jobs:
       needs.detect-changes.outputs.workoutgroups == 'true'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: helm-prebreaker
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
