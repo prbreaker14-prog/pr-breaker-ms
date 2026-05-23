@@ -49,7 +49,7 @@ jobs:
       - name: Get prbreaker-ci SHA
         id: get-sha
         run: |
-          git fetch origin prbreaker-ci
+          git fetch origin prbreaker-ci:refs/remotes/origin/prbreaker-ci --force
           BRANCH_SHA=$(git rev-parse origin/prbreaker-ci)
           echo "sha=$BRANCH_SHA" >> $GITHUB_OUTPUT
           echo "📌 prbreaker-ci SHA: $BRANCH_SHA"
