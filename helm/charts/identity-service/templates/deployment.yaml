@@ -21,7 +21,7 @@ spec:
             - sh
             - -c
             - |
-              until nc -z identity-db 5432; do
+              until nc -z identity-db.prbreaker.svc.cluster.local 5432; do
                 echo "Waiting for identity-db..."; sleep 2;
               done
               echo "identity-db is ready"
