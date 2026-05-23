@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: prbreaker/workout-service
-  tag: f2100823d0c82b6fa1fba71be4c36a6a4d4fe0cd
+  tag: 872364406cfbf1b0ea8dbf2a331c2c8360b90f66
   pullPolicy: Always
 port: 5000
 nodePort: 30002
