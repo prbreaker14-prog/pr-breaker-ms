@@ -11,7 +11,7 @@ class Config:
     # Database (class_db)
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "WGROUPS_DATABASE_URL",
-        "postgresql+psycopg2://wgroups_user:wgroups_password@wgroups-db:5432/class_db",
+        "postgresql+psycopg2://wgroups_user:wgroups_password@workoutgroups-db:5432/class_db",
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
