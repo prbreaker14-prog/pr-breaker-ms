@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - helm-prebreaker
+      - prbreaker-ci
 
   workflow_dispatch:
     inputs:
@@ -46,13 +46,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get helm-prebreaker SHA
+      - name: Get prbreaker-ci SHA
         id: get-sha
         run: |
-          git fetch origin helm-prebreaker
-          BRANCH_SHA=$(git rev-parse origin/helm-prebreaker)
+          git fetch origin prbreaker-ci
+          BRANCH_SHA=$(git rev-parse origin/prbreaker-ci)
           echo "sha=$BRANCH_SHA" >> $GITHUB_OUTPUT
-          echo "📌 helm-prebreaker SHA: $BRANCH_SHA"
+          echo "📌 prbreaker-ci SHA: $BRANCH_SHA"
 
       - name: Parse manual service selection
         id: manual
@@ -274,7 +274,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No values changed, skipping commit"
           else
-            git commit -m "cd: update image tags to $SHORT_SHA (helm-prebreaker)"
+            git commit -m "cd: update image tags to $SHORT_SHA (prbreaker-ci)"
             git push origin helm-prbreaker-cd
           fi
 
